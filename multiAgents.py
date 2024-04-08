@@ -86,7 +86,7 @@ class ReflexAgent(Agent):
             ghostPos = ghostState.getPosition()
             distance = manhattanDistance(newPos, ghostPos)
             if ghostState.scaredTimer > 0:
-                accumulator += 1/distance
+                accumulator += 100/distance
             else: 
                 accumulator += distance
 
@@ -96,6 +96,7 @@ class ReflexAgent(Agent):
                 else:
                     accumulator = float('-inf')
 
+        accumulator += sum(newScaredTimes)/len(newScaredTimes)
 
         return successorGameState.getScore() + accumulator
 
