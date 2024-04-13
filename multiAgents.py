@@ -75,30 +75,53 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        accumulator = 0
+        score = 0
 
-        # Get the closest food
-        x, y = newPos
-        accumulator += 1 if newFood[x][y] else 0
+        if(successorGameState.isWin): 
+            return 99999999999
+        if(successorGameState.isLose):
+            return -99999999999
+        
+        food_list = newFood.asList()
+        food_dist = [manhattanDistance(newPos, pos) for pos in food_list]
 
-        # Distance from ghost.
-        for ghostState in newGhostStates:
-            ghostPos = ghostState.getPosition()
-            distance = manhattanDistance(newPos, ghostPos)
-            if ghostState.scaredTimer > 0:
-                accumulator += 100/distance
-            else: 
-                accumulator += distance
+        curr_food_list = currentGameState.getFood().asList()
+        curr_food_dist = [manhattanDistance(newPos, pos) for pos in curr_food_list] 
+        
+        ghost_pos = [ghost.getPosition() for ghost in newGhostStates]
+        ghost_dist = [manhattanDistance(newPos,pos) for pos in ghost_pos]
 
-            if ghostPos == newPos:
-                if ghostState.scaredTimer > 0:
-                    accumulator += 5
-                else:
-                    accumulator = float('-inf')
+        curr_ghost_pos = [ghost.getPosition() for ghost in currentGameState.getGhostPositions()]
+        curr_ghost_dist = [manhattanDistance(newPos, pos) for pos in curr_ghost_pos]
 
-        accumulator += sum(newScaredTimes)/len(newScaredTimes)
+        num_food = len(food_list)
+        curr_num_food = len(curr_food_list)
 
-        return successorGameState.getScore() + accumulator
+        score += successorGameState.getScore() 
+
+        if(action == Directions.STOP):
+            score -= 50
+        
+        if(num_food < curr_num_food):
+            score += 100
+
+        if(min(food_dist) < min(curr_food_dist)):
+            score += 100
+
+        if(newFood[newPos.x][newPos.y]): 
+            score += 200
+
+        score += sum(newScaredTimes)/len(newScaredTimes)
+
+        if(min(ghost_dist) < min(curr_ghost_dist)):
+            score += 250
+        else:
+            score -= 250
+
+        if(min(ghost_dist) == 0):
+            return -999999999999 
+
+        return score
 
 def scoreEvaluationFunction(currentGameState: GameState):
     """
