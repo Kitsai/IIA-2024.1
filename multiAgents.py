@@ -173,7 +173,47 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        legal_actions = gameState.getLegalActions(self.index)
+        successors = [gameState.generateSuccessor(self.index,action) for action in legal_actions]
+        successors_values = [self.value(successor) for successor in successors]
+        v = self.max_value(gameState)
+        for i in range(0,len(successors_values)):
+            if(v == successors_values[i]):
+                return legal_actions[i]
+
+
+    def max_value(self, gameState: GameState):
+        v = float('-inf')
+        legal_actions = gameState.getLegalActions(self.index)
+        for action in legal_actions:
+            v = max(v, self.value(gameState.generateSuccessor(self.index,action)))
+        return v
+    
+    def min_value(self, gameState: GameState):
+        v = float('inf')
+        legal_actions = gameState.getLegalActions(self.index)
+        for action in legal_actions:
+            v = min(v, self.value(gameState.generateSuccessor(self.index,action)))
+        return v
+
+    def value(self, gameState: GameState):
+        if(self.index == gameState.getNumAgents() - 1):
+            self.depth -= 1
+
+        if(gameState.isWin() or gameState.isLose() or self.depth == 0):
+            return self.evaluationFunction(gameState)
+        
+        self.index  = (self.index+1)%gameState.getNumAgents()
+
+        if(self.index == 0):
+            return self.max_value(gameState)
+        else:
+            return self.min_value(gameState)
+        
+
+        
+
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
