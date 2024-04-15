@@ -75,77 +75,44 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        score = 0
-
-        # if(successorGameState.isWin): 
-        #     return 99999999999
-        # if(successorGameState.isLose):
-        #     return -99999999999
-        
         food_list = newFood.asList()
         food_dist = [manhattanDistance(newPos, pos) for pos in food_list]
 
         curr_food_list = currentGameState.getFood().asList()
-        curr_food_dist = [manhattanDistance(newPos, pos) for pos in curr_food_list] 
-        
-        ghost_pos = successorGameState.getGhostPositions()
-        ghost_dist = [manhattanDistance(newPos,pos) for pos in ghost_pos]
+        curr_food_dist = [manhattanDistance(currentGameState.getPacmanPosition(),pos) for pos in curr_food_list]
 
-        curr_ghost_pos = currentGameState.getGhostPositions()
-        curr_ghost_dist = [manhattanDistance(newPos, pos) for pos in curr_ghost_pos]
+        accumulator = 0
 
-        num_food = len(food_list)
-        curr_num_food = len(curr_food_list)
+        # Get the closest food
+        x, y = newPos
+        accumulator += 1 if newFood[x][y] else 0
 
-        capsule_list = successorGameState.getCapsules()
-        capsule_dist = [manhattanDistance(newPos, pos) for pos in capsule_list]
+        accumulator -= len(food_list) * 5
 
-        curr_capsule_list = currentGameState.getCapsules()
-        curr_capsule_dist = [manhattanDistance(newPos, pos) for pos in curr_capsule_list]
-
-
-        score += successorGameState.getScore() - currentGameState.getScore()
+        if(food_list and min(food_dist) < min(curr_food_dist)):
+            accumulator += 100/min(food_dist)
 
         if(action == Directions.STOP):
-            score -= 50
-        
-        if(num_food < curr_num_food):
-            score += 300
+            accumulator -25
 
-        if(food_dist and curr_food_dist and min(food_dist) < min(curr_food_dist)):
-            score += 500
-        else:
-            score -= 200
+        # Distance from ghost.
+        for ghostState in newGhostStates:
+            ghostPos = ghostState.getPosition()
+            distance = manhattanDistance(newPos, ghostPos)
+            if ghostState.scaredTimer > 0:
+                accumulator += 100/distance
+            else: 
+                accumulator += distance
 
-        
-        if(capsule_dist and curr_capsule_dist and min(capsule_dist) < min(curr_capsule_dist)):
-            score += 400
-        else:
-            score -= 200
+            if ghostPos == newPos:
+                if ghostState.scaredTimer > 0:
+                    accumulator += 5
+                else:
+                    accumulator = float('-inf')
 
-        x, y = newPos
-        if(newFood[x][y]): 
-            score += 200
+        accumulator += sum(newScaredTimes)/len(newScaredTimes)
 
-        if(newPos in ghost_pos):
-            score -= 9999
-
-        scared_avg = sum(newScaredTimes)/len(newScaredTimes)
-
-        score += scared_avg
-
-        if(scared_avg > 0):
-            if(ghost_dist and curr_ghost_dist and min(ghost_dist) > min(curr_ghost_dist)):
-                score += 700  
-            else:
-                score -= 200           
-        else:
-            if(ghost_dist and curr_ghost_dist and min(ghost_dist) < min(curr_ghost_dist)):
-                score += 400  
-            else:
-                score -= 200
-
-        return score
+        return successorGameState.getScore() - currentGameState.getScore() + accumulator
 
 def scoreEvaluationFunction(currentGameState: GameState):
     """
