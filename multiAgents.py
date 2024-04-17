@@ -174,7 +174,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
         legal_actions = gameState.getLegalActions(self.index)
-        successors = [gameState.generateSuccessor(self.index,action) for action in legal_actions]
+        successors = [gameState.generateSuccessor(0,action) for action in legal_actions]
 
 
         curr_action = None
