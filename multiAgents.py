@@ -181,38 +181,38 @@ class MinimaxAgent(MultiAgentSearchAgent):
         curr_score = -9999999999
         for i in  range(len(legal_actions)):
             self.index = 1
-            score = self.min_value(successors[i], 0)
+            score = self.min_value(successors[i], 0, 1)
             if(score > curr_score):
                 curr_score = score
                 curr_action = legal_actions[i]
         return curr_action
 
 
-    def max_value(self, gameState: GameState, depth):
+    def max_value(self, gameState: GameState, depth, index):
         depth += 1
         if depth == self.depth or gameState.isWin() or gameState.isLose():
             return self.evaluationFunction(gameState)
         v = -9999999999
-        legal_actions = gameState.getLegalActions(self.index)
+        legal_actions = gameState.getLegalActions(index)
         for action in legal_actions:
-            v = max(v, self.value(gameState.generateSuccessor(self.index,action), depth))
+            v = max(v, self.value(gameState.generateSuccessor(index,action), depth, index))
         return v
     
-    def min_value(self, gameState: GameState, depth):
+    def min_value(self, gameState: GameState, depth, index):
         if depth == self.depth or gameState.isWin() or gameState.isLose():
             return self.evaluationFunction(gameState)
         v = 9999999999
-        legal_actions = gameState.getLegalActions(self.index)
+        legal_actions = gameState.getLegalActions(index)
         for action in legal_actions:
-            v = min(v, self.value(gameState.generateSuccessor(self.index,action), depth))
+            v = min(v, self.value(gameState.generateSuccessor(index,action), depth, index))
         return v
-    def value(self, gameState: GameState, depth):
-        self.index  = (self.index + 1) % gameState.getNumAgents()
-
-        if self.index == 0:
-            return self.max_value(gameState, depth)
+    def value(self, gameState: GameState, depth, index):
+        new_index = (index + 1) % gameState.getNumAgents() 
+        if new_index == 0:
+            return self.max_value(gameState, depth,new_index)
         else:
-            return self.min_value(gameState, depth)
+            return self.min_value(gameState, depth,new_index)
+        
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     Your minimax agent with alpha-beta pruning (question 3)
