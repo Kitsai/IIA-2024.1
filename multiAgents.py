@@ -357,17 +357,42 @@ def betterEvaluationFunction(currentGameState: GameState):
     """
     "*** YOUR CODE HERE ***"
     pacman_position = currentGameState.getPacmanPosition()
+
+    ghosts = currentGameState.getGhostStates()
     ghost_positions = currentGameState.getGhostPositions()
+    ghost_dist = [manhattanDistance(pacman_position,pos) for pos in ghost_positions]
+
+    scared_time = sum([ghost.scaredTimer for ghost in ghosts])
 
     food = currentGameState.getFood()
     food_list = food.asList()
+    food_dist = [manhattanDistance(pacman_position,pos) for pos in food_list]
 
     capsules = currentGameState.getCapsules()
+    capsules_dist = [manhattanDistance(pacman_position, pos) for pos in capsules]
 
     game_score = currentGameState.getScore()
 
+    accumulator = 0
 
-    util.raiseNotDefined()
+    accumulator += game_score
+
+    accumulator += len(food.asList(False))
+
+    if(scared_time > 0):
+        accumulator += scared_time
+        accumulator -= min(ghost_dist) if ghost_dist else 0 
+        accumulator -= min(capsules_dist) if capsules_dist else 0
+    else:
+        accumulator += min(ghost_dist) if ghost_dist else 0
+        accumulator -= min(food_dist) if food_dist else 0
+
+    if(currentGameState.isWin()):
+        accumulator += 1000
+    if(currentGameState.isLose()):
+        accumulator -= 1000
+
+    return accumulator
 
 # Abbreviation
 better = betterEvaluationFunction
