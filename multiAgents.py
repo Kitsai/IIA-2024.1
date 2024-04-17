@@ -93,11 +93,14 @@ class ReflexAgent(Agent):
         x, y = newPos
         accumulator += 1 if newFood[x][y] else 0
 
+        # Penalty for remaining food
         accumulator -= len(food_list) * 5
 
+        # Scores if pacman gets closer to the food
         if(food_list and min(food_dist) < min(curr_food_dist)):
             accumulator += 100/min(food_dist)
 
+        # Penalty for doing nothing
         if(action == Directions.STOP):
             accumulator -25
 
@@ -116,8 +119,10 @@ class ReflexAgent(Agent):
                 else:
                     accumulator = float('-inf')
 
+        # Bonus for keeping scared times higher
         accumulator += sum(newScaredTimes)/len(newScaredTimes)
 
+        # Gets the diference in score.
         return successorGameState.getScore() - currentGameState.getScore() + accumulator
 
 def scoreEvaluationFunction(currentGameState: GameState):
@@ -250,6 +255,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             if(score > curr_score):
                 curr_score = score
                 curr_action = action
+            # Never prune on root
         return curr_action
 
     # The max_value and min_value functions are the same as the ones in the slides
@@ -258,7 +264,9 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         legal_actions = gameState.getLegalActions(index)
         for action in legal_actions:
             v = max(v, self.value(gameState.generateSuccessor(index,action), depth, index, alpha, beta))
+            # maximizes alpha since its a max node
             alpha = max(alpha, v)
+            # if prune condition is met stop visiting rest of nodes. 
             if (alpha > beta): break
         return v
     
@@ -267,7 +275,9 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         legal_actions = gameState.getLegalActions(index)
         for action in legal_actions:
             v = min(v, self.value(gameState.generateSuccessor(index,action), depth, index, alpha, beta))
+            # minimizes beta since its a min node
             beta = min(beta, v)
+            # if prune condition is met stop visiting rest of nodes
             if (alpha > beta): break
         return v
     
@@ -316,7 +326,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
                 curr_action = action
         return curr_action
 
-    # The max_value and min_value functions are the same as the ones in the slides
+    # The max_value is the same as the one in the slides
     def max_value(self, gameState: GameState, depth, index):
         v = float('-inf')
         legal_actions = gameState.getLegalActions(index)
@@ -324,13 +334,16 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             v = max(v, self.value(gameState.generateSuccessor(index,action), depth, index))
         return v
     
+    # Now is a exp_value function that deals with probability
     def exp_value(self, gameState: GameState, depth, index):
         v = 0
         legal_actions = gameState.getLegalActions(index)
         if(not legal_actions):
                 return 0
+        # Gives all legal action a equal chance of happening
         p = 1/len(legal_actions)
         for action in legal_actions:
+            # Scales points based on likelyhood of happenning
             v += p*self.value(gameState.generateSuccessor(index,action), depth, index)
         return v
     
@@ -362,6 +375,7 @@ def betterEvaluationFunction(currentGameState: GameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
+    # Variables
     pacman_position = currentGameState.getPacmanPosition()
 
     ghosts = currentGameState.getGhostStates()
@@ -379,12 +393,17 @@ def betterEvaluationFunction(currentGameState: GameState):
 
     game_score = currentGameState.getScore()
 
+
+    # evaluation
     accumulator = 0
 
+    #adds the current game score
     accumulator += game_score
 
+    # Adds how many spots not have food
     accumulator += len(food.asList(False))
 
+    # based on ghosts changes what pacman wants to be close to
     if(scared_time > 0):
         accumulator += scared_time
         accumulator -= min(ghost_dist) if ghost_dist else 0 
