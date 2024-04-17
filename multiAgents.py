@@ -173,21 +173,22 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
+        # Get the legal actions for the pacman because he is the first agent
         legal_actions = gameState.getLegalActions(0)
+        # Get the successors based on those actions
         successors = [gameState.generateSuccessor(0,action) for action in legal_actions]
 
-
+        # Starts by running a different version of max_value that also returns the action instead of just the score
         curr_action = None
         curr_score = float('-inf')
         for i in  range(len(legal_actions)):
-            self.index = 1
-            score = self.value(successors[i], 0, 0)
+            score = self.value(successors[i], 0, 0) # The first 0 is the depth and the second 0 is the index. Gets the value of each successor.
             if(score > curr_score):
                 curr_score = score
                 curr_action = legal_actions[i]
         return curr_action
 
-
+    # The max_value and min_value functions are the same as the ones in the slides
     def max_value(self, gameState: GameState, depth, index):
         v = float('-inf')
         legal_actions = gameState.getLegalActions(index)
@@ -202,17 +203,23 @@ class MinimaxAgent(MultiAgentSearchAgent):
             v = min(v, self.value(gameState.generateSuccessor(index,action), depth, index))
         return v
     
+    # The value function treats the details of the implementation.
     def value(self, gameState: GameState, depth, index):
+        # If the index is the number of agents, then it is the pacman's turn again. So is cycles between the agents.
         new_index = (index + 1) % gameState.getNumAgents()
 
+        # If the index is 0, then it is the pacman's turn again. So the depth is increased since we are guaranteed to have gone through all the agents.
         if(new_index == 0):
             depth += 1 
 
+        # Terminal test
         if depth == self.depth or gameState.isWin() or gameState.isLose():
             return self.evaluationFunction(gameState)
         
+        # If the index is 0, then it is the pacman's turn again. So it is a max node.
         if new_index == 0:
             return self.max_value(gameState, depth,new_index)
+        # If the index is not 0, then it is a ghost's turn. So it is a min node.
         else:
             return self.min_value(gameState, depth,new_index)
         
