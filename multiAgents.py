@@ -173,19 +173,17 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        # Get the legal actions for the pacman because he is the first agent
-        legal_actions = gameState.getLegalActions(0)
-        # Get the successors based on those actions
-        successors = [gameState.generateSuccessor(0,action) for action in legal_actions]
 
         # Starts by running a different version of max_value that also returns the action instead of just the score
         curr_action = None
         curr_score = float('-inf')
-        for i in  range(len(legal_actions)):
-            score = self.value(successors[i], 0, 0) # The first 0 is the depth and the second 0 is the index. Gets the value of each successor.
+        # Get the legal actions for the pacman because he is the first agent
+        legal_actions = gameState.getLegalActions(0)
+        for action in  legal_actions:
+            score = self.value(gameState.generateSuccessor(0,action), 0, 0) # The first 0 is the depth and the second 0 is the index. Gets the value of each successor.
             if(score > curr_score):
                 curr_score = score
-                curr_action = legal_actions[i]
+                curr_action = action
         return curr_action
 
     # The max_value and min_value functions are the same as the ones in the slides
