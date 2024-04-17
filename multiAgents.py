@@ -231,7 +231,58 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # Starts by running a different version of max_value that also returns the action instead of just the score
+        curr_action = None
+        curr_score = float('-inf')
+        alpha = float ("-inf")
+        beta = float("inf")
+        # Get the legal actions for the pacman because he is the first agent
+        legal_actions = gameState.getLegalActions(0)
+        for action in legal_actions:
+            score = self.value(gameState.generateSuccessor(0,action), 0, 0, alpha, beta) # The first 0 is the depth and the second 0 is the index. Gets the value of each successor.
+            if(score > curr_score):
+                curr_score = score
+                curr_action = action
+        return curr_action
+
+    # The max_value and min_value functions are the same as the ones in the slides
+    def max_value(self, gameState: GameState, depth, index, alpha, beta):
+        v = float('-inf')
+        legal_actions = gameState.getLegalActions(index)
+        for action in legal_actions:
+            v = max(v, self.value(gameState.generateSuccessor(index,action), depth, index, alpha, beta))
+            alpha = max(alpha, v)
+            if (alpha >= beta): break
+        return v
+    
+    def min_value(self, gameState: GameState, depth, index, alpha, beta):
+        v = float('inf')
+        legal_actions = gameState.getLegalActions(index)
+        for action in legal_actions:
+            v = min(v, self.value(gameState.generateSuccessor(index,action), depth, index, alpha, beta))
+            beta = min(beta, v)
+            if (alpha >= beta): break
+        return v
+    
+    # The value function treats the details of the implementation.
+    def value(self, gameState: GameState, depth, index, alpha, beta):
+        # If the index is the number of agents, then it is the pacman's turn again. So is cycles between the agents.
+        new_index = (index + 1) % gameState.getNumAgents()
+
+        # If the index is 0, then it is the pacman's turn again. So the depth is increased since we are guaranteed to have gone through all the agents.
+        if(new_index == 0):
+            depth += 1 
+
+        # Terminal test
+        if depth == self.depth or gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState)
+        
+        # If the index is 0, then it is the pacman's turn again. So it is a max node.
+        if new_index == 0:
+            return self.max_value(gameState, depth,new_index, alpha, beta)
+        # If the index is not 0, then it is a ghost's turn. So it is a min node.
+        else:
+            return self.min_value(gameState, depth,new_index, alpha, beta)
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
