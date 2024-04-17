@@ -321,6 +321,8 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     def exp_value(self, gameState: GameState, depth, index):
         v = 0
         legal_actions = gameState.getLegalActions(index)
+        if(not legal_actions):
+                return 0
         p = 1/len(legal_actions)
         for action in legal_actions:
             v += p*self.value(gameState.generateSuccessor(index,action), depth, index)
