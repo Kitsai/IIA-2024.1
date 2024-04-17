@@ -240,6 +240,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         legal_actions = gameState.getLegalActions(0)
         for action in legal_actions:
             score = self.value(gameState.generateSuccessor(0,action), 0, 0, alpha, beta) # The first 0 is the depth and the second 0 is the index. Gets the value of each successor.
+            alpha = max(alpha, score)
             if(score > curr_score):
                 curr_score = score
                 curr_action = action
@@ -252,7 +253,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         for action in legal_actions:
             v = max(v, self.value(gameState.generateSuccessor(index,action), depth, index, alpha, beta))
             alpha = max(alpha, v)
-            if (alpha >= beta): break
+            if (alpha > beta): break
         return v
     
     def min_value(self, gameState: GameState, depth, index, alpha, beta):
@@ -261,7 +262,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         for action in legal_actions:
             v = min(v, self.value(gameState.generateSuccessor(index,action), depth, index, alpha, beta))
             beta = min(beta, v)
-            if (alpha >= beta): break
+            if (alpha > beta): break
         return v
     
     # The value function treats the details of the implementation.
