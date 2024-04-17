@@ -12,6 +12,12 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
+
+#### ALUNOS ####
+# Lucas Rocha dos Santos - 211055325
+# Gabriela de Oliveira Henriques - 211055254
+################
+
 from util import manhattanDistance
 from game import Directions
 import random, util
