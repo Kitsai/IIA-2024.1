@@ -241,8 +241,10 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         # Starts by running a different version of max_value that also returns the action instead of just the score
         curr_action = None
         curr_score = float('-inf')
+        alpha = float('-inf')
+        beta = float('inf')
         for i in  range(len(legal_actions)):
-            score = self.value(successors[i], 0, 0, float('-inf'), float('inf')) # The first 0 is the depth and the second 0 is the index. Gets the value of each successor.
+            score = self.value(successors[i], 0, 0, alpha , beta) # The first 0 is the depth and the second 0 is the index. Gets the value of each successor.
             if(score > curr_score):
                 curr_score = score
                 curr_action = legal_actions[i]
